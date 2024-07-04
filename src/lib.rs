@@ -457,6 +457,7 @@ impl Config {
                     //
                     // CMAKE_SYSTEM_PROCESSOR
                     // some of the values come from https://en.wikipedia.org/wiki/Uname
+                    println!("os: {os}, arch: {arch}");
                     let (system_name, system_processor) = match (os.as_str(), arch.as_str()) {
                         ("android", "arm") => ("Android", "armv7-a"),
                         ("android", "x86") => ("Android", "i686"),
@@ -491,6 +492,9 @@ impl Config {
                         // Others
                         (os, arch) => (os, arch),
                     };
+
+                    println!("system_name: {system_name}, processor: {system_processor}");
+
                     self.define("CMAKE_SYSTEM_NAME", system_name);
                     self.define("CMAKE_SYSTEM_PROCESSOR", system_processor);
                 }
