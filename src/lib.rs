@@ -443,61 +443,56 @@ impl Config {
         if !self.defined("CMAKE_TOOLCHAIN_FILE") {
             if let Some(s) = self.getenv_target_os("CMAKE_TOOLCHAIN_FILE") {
                 self.define("CMAKE_TOOLCHAIN_FILE", s);
-            } else {
-                if target.contains("redox") {
-                    if !self.defined("CMAKE_SYSTEM_NAME") {
-                        self.define("CMAKE_SYSTEM_NAME", "Generic");
-                    }
-                } else if target != host && !self.defined("CMAKE_SYSTEM_NAME") {
-                    // Set CMAKE_SYSTEM_NAME and CMAKE_SYSTEM_PROCESSOR when cross compiling
-                    let os = getenv_unwrap("CARGO_CFG_TARGET_OS");
-                    let arch = getenv_unwrap("CARGO_CFG_TARGET_ARCH");
-                    // CMAKE_SYSTEM_NAME list
-                    // https://gitlab.kitware.com/cmake/cmake/-/issues/21489#note_1077167
-                    //
-                    // CMAKE_SYSTEM_PROCESSOR
-                    // some of the values come from https://en.wikipedia.org/wiki/Uname
-                    println!("os: {os}, arch: {arch}");
-                    let (system_name, system_processor) = match (os.as_str(), arch.as_str()) {
-                        ("android", "arm") => ("Android", "armv7-a"),
-                        ("android", "x86") => ("Android", "i686"),
-                        ("android", arch) => ("Android", arch),
-                        ("dragonfly", arch) => ("DragonFly", arch),
-                        ("macos", "x86_64") => ("Darwin", "x86_64"),
-                        ("macos", "aarch64") => ("Darwin", "arm64"),
-                        ("freebsd", "x86_64") => ("FreeBSD", "amd64"),
-                        ("freebsd", arch) => ("FreeBSD", arch),
-                        ("fuchsia", arch) => ("Fuchsia", arch),
-                        ("haiku", arch) => ("Haiku", arch),
-                        ("ios", "aarch64") => ("iOS", "arm64"),
-                        ("ios", arch) => ("iOS", arch),
-                        ("linux", arch) => {
-                            let name = "Linux";
-                            match arch {
-                                "powerpc" => (name, "ppc"),
-                                "powerpc64" => (name, "ppc64"),
-                                "powerpc64le" => (name, "ppc64le"),
-                                _ => (name, arch),
-                            }
-                        }
-                        ("netbsd", arch) => ("NetBSD", arch),
-                        ("openbsd", "x86_64") => ("OpenBSD", "amd64"),
-                        ("openbsd", arch) => ("OpenBSD", arch),
-                        ("solaris", arch) => ("SunOS", arch),
-                        ("tvos", arch) => ("tvOS", arch),
-                        ("watchos", arch) => ("watchOS", arch),
-                        ("windows", "x86_64") => ("Windows", "AMD64"),
-                        ("windows", "x86") => ("Windows", "X86"),
-                        ("windows", "aarch64") => ("Windows", "ARM64"),
-                        // Others
-                        (os, arch) => (os, arch),
-                    };
-
-                    println!("system_name: {system_name}, processor: {system_processor}");
-
-                    self.define("CMAKE_SYSTEM_NAME", system_name);
-                    self.define("CMAKE_SYSTEM_PROCESSOR", system_processor);
+            } else if target.contains("redox") {
+                if !self.defined("CMAKE_SYSTEM_NAME") {
+                    self.define("CMAKE_SYSTEM_NAME", "Generic");
                 }
+            } else if target != host && !self.defined("CMAKE_SYSTEM_NAME") {
+                // Set CMAKE_SYSTEM_NAME and CMAKE_SYSTEM_PROCESSOR when cross compiling
+                let os = getenv_unwrap("CARGO_CFG_TARGET_OS");
+                let arch = getenv_unwrap("CARGO_CFG_TARGET_ARCH");
+                // CMAKE_SYSTEM_NAME list
+                // https://gitlab.kitware.com/cmake/cmake/-/issues/21489#note_1077167
+                //
+                // CMAKE_SYSTEM_PROCESSOR
+                // some of the values come from https://en.wikipedia.org/wiki/Uname
+                let (system_name, system_processor) = match (os.as_str(), arch.as_str()) {
+                    ("android", "arm") => ("Android", "armv7-a"),
+                    ("android", "x86") => ("Android", "i686"),
+                    ("android", arch) => ("Android", arch),
+                    ("dragonfly", arch) => ("DragonFly", arch),
+                    ("macos", "x86_64") => ("Darwin", "x86_64"),
+                    ("macos", "aarch64") => ("Darwin", "arm64"),
+                    ("freebsd", "x86_64") => ("FreeBSD", "amd64"),
+                    ("freebsd", arch) => ("FreeBSD", arch),
+                    ("fuchsia", arch) => ("Fuchsia", arch),
+                    ("haiku", arch) => ("Haiku", arch),
+                    ("ios", "aarch64") => ("iOS", "arm64"),
+                    ("ios", arch) => ("iOS", arch),
+                    ("linux", arch) => {
+                        let name = "Linux";
+                        match arch {
+                            "powerpc" => (name, "ppc"),
+                            "powerpc64" => (name, "ppc64"),
+                            "powerpc64le" => (name, "ppc64le"),
+                            _ => (name, arch),
+                        }
+                    }
+                    ("netbsd", arch) => ("NetBSD", arch),
+                    ("openbsd", "x86_64") => ("OpenBSD", "amd64"),
+                    ("openbsd", arch) => ("OpenBSD", arch),
+                    ("solaris", arch) => ("SunOS", arch),
+                    ("tvos", arch) => ("tvOS", arch),
+                    ("watchos", arch) => ("watchOS", arch),
+                    ("windows", "x86_64") => ("Windows", "AMD64"),
+                    ("windows", "x86") => ("Windows", "X86"),
+                    ("windows", "aarch64") => ("Windows", "ARM64"),
+                    // Others
+                    (os, arch) => (os, arch),
+                };
+
+                self.define("CMAKE_SYSTEM_NAME", system_name);
+                self.define("CMAKE_SYSTEM_PROCESSOR", system_processor);
             }
         }
 
